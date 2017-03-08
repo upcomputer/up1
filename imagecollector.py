@@ -8,10 +8,10 @@ from datetime import datetime
 import wx
 
 
-class ImagecollectPanel(wx.Panel):
+class ImagecollectFrame(wx.Frame):
 
-    def __init__(self, parent):
-        wx.Panel.__init__(self, parent, size=(800, 800))
+    def __init__(self, parent, title):
+        wx.Frame.__init__(self, parent, title=title)
         self.baudrate = 115200
 
         # 串口号输入框
@@ -23,8 +23,12 @@ class ImagecollectPanel(wx.Panel):
         self.Bind(wx.EVT_COMBOBOX, self.choosePorts, self.portscombobox)
 
         # 滑块
-        self.slider = wx.Slider(self, -1, 30, 1, 100)  # 创建滑块控件
-        self.slider.SetTickFreq(5, 1)  # 滑块刻度间隔
+        self.slider1 = wx.Slider(self, -1, 30, 1, 100,
+                                 size=(300, 30), style=wx.SL_LABELS)  # 创建滑块控件
+        self.slider1.SetTickFreq(5, 1)  # 滑块刻度间隔
+        self.slider2 = wx.Slider(self, -1, 30, 1, 100,
+                                 size=(300, 30), style=wx.SL_LABELS)  # 创建滑块控件
+        self.slider2.SetTickFreq(5, 1)  # 滑块刻度间隔
 
         # 图像列数输入框
         self.clabel = wx.StaticText(self, label=u'列数')
@@ -41,25 +45,22 @@ class ImagecollectPanel(wx.Panel):
         # 亮度输入框
         self.labeltip = wx.StaticText(self, label=u'调试部分：')
         self.lthres = wx.StaticText(self, label=u'亮度')
-        self.thres = wx.TextCtrl(self)
-
-        # 亮度调整按钮
-        self.buttenthres = wx.Button(self, label=u"更改图像亮度")
-        self.Bind(wx.EVT_BUTTON, self.onclickthres, self.buttenthres)
+        #self.thres = wx.TextCtrl(self)
 
         # 对比度输入框
         self.ccontrast = wx.StaticText(self, label=u'对比度')
-        self.contrast = wx.TextCtrl(self)
+        #self.contrast = wx.TextCtrl(self)
 
         # 对比度调整按钮
-        self.buttencontrast = wx.Button(self, label=u'更改图像对比度')
-        self.Bind(wx.EVT_BUTTON, self.onclickcontrast, self.buttencontrast)
+        self.butten_edit = wx.Button(self, label=u'更改图像')
+        self.Bind(wx.EVT_BUTTON, self.onclick, self.butten_edit)
 
         # 历史状态状态栏显示栏
 
         # 布局
         self.rec_sizer = wx.FlexGridSizer(rows=3, cols=4, vgap=10, hgap=10)
         self.edit_sizer = wx.FlexGridSizer(rows=4, cols=2, vgap=10, hgap=10)
+        self.box_sizer = wx.BoxSizer(orient=wx.VERTICAL)
 
         expand_option = dict(flag=wx.EXPAND)
         no_options = dict()
@@ -67,8 +68,8 @@ class ImagecollectPanel(wx.Panel):
 
         for control, options in \
             [(self.portslabel, no_options),
-             empty_space,
              (self.portscombobox, no_options),
+             empty_space,
              empty_space,
              (self.clabel, no_options),
              (self.columnnumber, no_options),
@@ -81,8 +82,20 @@ class ImagecollectPanel(wx.Panel):
         for control, options in \
             [(self.labeltip, no_options),
              empty_space,
-             (self.lthres)]
-        self.SetSizerAndFit(self.rec_sizer)
+             (self.lthres, no_options),
+             (self.slider1, expand_option),
+             (self.ccontrast, no_options),
+             (self.slider2, expand_option),
+             empty_space,
+             (self.butten_edit, no_options)]:
+            self.edit_sizer.Add(control, **options)
+
+        for control, options in \
+            [(self.rec_sizer, dict(border=20, flag=wx.ALL | wx.EXPAND)),
+             (self.edit_sizer, dict(border=20, flag=wx.ALL | wx.EXPAND))]:
+            self.box_sizer.Add(control, **options)
+
+        self.SetSizerAndFit(self.box_sizer)
 
     # 选择串口方法
     def choosePorts(self, event):
@@ -129,7 +142,7 @@ class ImagecollectPanel(wx.Panel):
             print u'[错误]:不存在的串口，请使用 python -m serial.tools.list_ports 查看可用串口。\n将退出...'
             exit()
 
-    def onclickthres(self, event):
+    def onclick(self, event):
         try:
             thres = self.thres.Value
             print u"更改亮度为" + thres
@@ -143,8 +156,6 @@ class ImagecollectPanel(wx.Panel):
         except:
             print "未输入更改亮度的值，或不在范围内(0-256)默认128，将退出"
             exit()
-
-    def onclickcontrast(self, event):
         try:
             contrast = self.contrast.Value
             print u"更改对比度为" + contrast
@@ -161,9 +172,6 @@ class ImagecollectPanel(wx.Panel):
 
 
 app = wx.App(False)
-frame = wx.Frame(None)
-panel = ImagecollectPanel(frame)
+frame = ImagecollectFrame(None, u"图像处理上位机")
 frame.Show()
 app.MainLoop()
-op()
-)
