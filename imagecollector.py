@@ -64,7 +64,7 @@ class ImagecollectPanel(wx.Panel):
         self.edit_sizer = wx.FlexGridSizer(row=4, clos=2, vgap=10, hgap=10)
 
         expand_option = dict(flag=wx.EXPAND)
-        no_options =
+        no_options = dict()
 
     # 选择串口方法
     def choosePorts(self, event):
