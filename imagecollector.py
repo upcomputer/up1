@@ -18,14 +18,13 @@ class ImagecollectPanel(wx.Panel):
         self.portslist = ['COM1', 'COM2', 'COM3', 'COM4', 'COM5', 'COM6', 'COM7',
                           'COM8', 'COM9', 'COM10', 'COM11', 'COM12', 'COM13', 'COM14', 'COM15']
         self.portslabel = wx.StaticText(self, label=u"请选择串口号")
-        self.portscombobox = wx.ComboBox(self, size=(
-            90, -1), choices=self.portslist, style=wx.CB_DROPDOWN)
+        self.portscombobox = wx.ComboBox(
+            self, choices=self.portslist, style=wx.CB_DROPDOWN)
         self.Bind(wx.EVT_COMBOBOX, self.choosePorts, self.portscombobox)
 
         # 滑块
-        slider = wx.Slider(self, -1, 30, 1, 100,
-                           size=(250, -1))  # 创建滑块控件
-        slider.SetTickFreq(5, 1)  # 滑块刻度间隔
+        self.slider = wx.Slider(self, -1, 30, 1, 100)  # 创建滑块控件
+        self.slider.SetTickFreq(5, 1)  # 滑块刻度间隔
 
         # 图像列数输入框
         self.clabel = wx.StaticText(self, label=u'列数')
@@ -33,14 +32,14 @@ class ImagecollectPanel(wx.Panel):
 
         # 图像行数输入框
         self.llabel = wx.StaticText(self, label=u'行数')
-        self.linenumber = wx.TextCtrl(self, size=(40, -1))
+        self.linenumber = wx.TextCtrl(self)
 
         # 确认按钮
         self.buttensure = wx.Button(self, label=u"确认并发送命令，获得图像")
         self.Bind(wx.EVT_BUTTON, self.onclicksure, self.buttensure)
 
         # 亮度输入框
-        self.labeltip1 = wx.StaticText(self, label=u'调试部分1：')
+        self.labeltip = wx.StaticText(self, label=u'调试部分：')
         self.lthres = wx.StaticText(self, label=u'亮度')
         self.thres = wx.TextCtrl(self)
 
@@ -49,9 +48,8 @@ class ImagecollectPanel(wx.Panel):
         self.Bind(wx.EVT_BUTTON, self.onclickthres, self.buttenthres)
 
         # 对比度输入框
-        self.labeltip2 = wx.StaticText(self, label=u'调试部分2：')
         self.ccontrast = wx.StaticText(self, label=u'对比度')
-        self.contrast = wx.TextCtrl(self, size=(40, -1))
+        self.contrast = wx.TextCtrl(self)
 
         # 对比度调整按钮
         self.buttencontrast = wx.Button(self, label=u'更改图像对比度')
@@ -61,10 +59,30 @@ class ImagecollectPanel(wx.Panel):
 
         # 布局
         self.rec_sizer = wx.FlexGridSizer(rows=3, cols=4, vgap=10, hgap=10)
-        self.edit_sizer = wx.FlexGridSizer(row=4, clos=2, vgap=10, hgap=10)
+        self.edit_sizer = wx.FlexGridSizer(rows=4, cols=2, vgap=10, hgap=10)
 
         expand_option = dict(flag=wx.EXPAND)
         no_options = dict()
+        empty_space = ((0, 0), no_options)
+
+        for control, options in \
+            [(self.portslabel, no_options),
+             empty_space,
+             (self.portscombobox, no_options),
+             empty_space,
+             (self.clabel, no_options),
+             (self.columnnumber, no_options),
+             (self.llabel, no_options),
+             (self.linenumber, no_options),
+             empty_space,
+             (self.buttensure, no_options)]:
+            self.rec_sizer.Add(control, **options)
+
+        for control, options in \
+            [(self.labeltip, no_options),
+             empty_space,
+             (self.lthres)]
+        self.SetSizerAndFit(self.rec_sizer)
 
     # 选择串口方法
     def choosePorts(self, event):
@@ -147,3 +165,5 @@ frame = wx.Frame(None)
 panel = ImagecollectPanel(frame)
 frame.Show()
 app.MainLoop()
+op()
+)
