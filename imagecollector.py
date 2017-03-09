@@ -23,10 +23,10 @@ class ImagecollectFrame(wx.Frame):
         self.Bind(wx.EVT_COMBOBOX, self.choosePorts, self.portscombobox)
 
         # 滑块
-        self.slider1 = wx.Slider(self, -1, 30, 1, 100,
+        self.slider1 = wx.Slider(self, -1, 128, 0, 255,
                                  size=(300, 30), style=wx.SL_LABELS)  # 创建滑块控件
         self.slider1.SetTickFreq(5, 1)  # 滑块刻度间隔
-        self.slider2 = wx.Slider(self, -1, 30, 1, 100,
+        self.slider2 = wx.Slider(self, -1, 128, 0, 255,
                                  size=(300, 30), style=wx.SL_LABELS)  # 创建滑块控件
         self.slider2.SetTickFreq(5, 1)  # 滑块刻度间隔
 
@@ -45,11 +45,9 @@ class ImagecollectFrame(wx.Frame):
         # 亮度输入框
         self.labeltip = wx.StaticText(self, label=u'调试部分：')
         self.lthres = wx.StaticText(self, label=u'亮度')
-        #self.thres = wx.TextCtrl(self)
 
         # 对比度输入框
         self.ccontrast = wx.StaticText(self, label=u'对比度')
-        #self.contrast = wx.TextCtrl(self)
 
         # 对比度调整按钮
         self.butten_edit = wx.Button(self, label=u'更改图像')
@@ -116,9 +114,12 @@ class ImagecollectFrame(wx.Frame):
                 c = self.columnnumber.Value
             else:
                 print "行数格式错误，默认输入行数 %d" % Columnnumber
-            if Line <= 240 and Line > 0:
+            if Line <= 240 and Line > 100:
                 Linenumber = Line
                 l = self.linenumber.Value
+            elif Line <= 100 and Line > 0:
+                Linenumber = Line
+                l = '0' + self.linenumber.Value
             else:
                 print "列数输入错误，默认输入列数 %d" % Linenumber
         except:
@@ -144,7 +145,13 @@ class ImagecollectFrame(wx.Frame):
 
     def onclick(self, event):
         try:
-            thres = self.thres.Value
+            thres = self.slider1.GetValue()
+            if thres < 100 and thres > 0:
+                thres = '0' + str(thres)
+            elif thres < 255 and thres >= 100:
+                thres = str(thres)
+            else:
+                raise Exception("Failure")
             print u"更改亮度为" + thres
             with serial.Serial(self.ports, self.baudrate, timeout=1) as ser:
                 command = 't' + thres
@@ -154,10 +161,15 @@ class ImagecollectFrame(wx.Frame):
             print u'[错误]:不存在的串口，请使用 python -m serial.tools.list_ports 查看可用串口。\n将退出...'
             exit()
         except:
-            print "未输入更改亮度的值，或不在范围内(0-256)默认128，将退出"
-            exit()
+            print "[错误]:未选择串口！"
         try:
-            contrast = self.contrast.Value
+            contrast = self.slider2.GetValue()
+            if contrast < 100 and contrast > 0:
+                contrast = '0' + str(contrast)
+            elif contrast < 255 and contrast >= 100:
+                contrast = str(contrast)
+            else:
+                raise Exception("Failure")
             print u"更改对比度为" + contrast
             with serial.Serial(self.ports, self.baudrate, timeout=1) as ser:
                 command = 'p' + contrast
@@ -167,7 +179,7 @@ class ImagecollectFrame(wx.Frame):
             print u'[错误]:不存在的串口，请使用 python -m serial.tools.list_ports 查看可用串口。\n将退出...'
             exit()
         except:
-            print "未输入更改对比度的值，或不在范围内(0-256)默认128，将退出"
+            print "[错误]:未选择串口！"
             exit()
 
 
